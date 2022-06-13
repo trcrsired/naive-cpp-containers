@@ -103,7 +103,7 @@ private:
 		value_type* bptr{};
 		value_type* cptr{};
 		std::size_t n{};
-		
+		allocator_type allocator{};
 		constexpr run_destroy() noexcept=default;
 		run_destroy(run_destroy const&)=delete;
 		run_destroy& operator=(run_destroy const&)=delete;
@@ -111,11 +111,11 @@ private:
 		{
 			if(bptr)
 			{
-			for(;cptr!=bptr;)
-			{
-				(--cptr)->~value_type();
-			}
-			allocator.template deallocate<value_type>(bptr,n);
+				for(;cptr!=bptr;)
+				{
+					(--cptr)->~value_type();
+				}
+				allocator.template deallocate<value_type>(bptr,n);
 			}
 		}
 	};
@@ -140,6 +140,7 @@ public:
 			des.bptr=begin_ptr;
 			des.cptr=des.bptr;
 			des.n=n;
+			des.allocator=allocator;
 			for(auto e{begin_ptr+n};des.cptr!=e;++des.cptr)
 			{
 				new (des.cptr) value_type;
@@ -178,9 +179,10 @@ public:
 			des.bptr=begin_ptr;
 			des.cptr=begin_ptr;
 			des.n=vecsize;
+			des.allocator=allocator;
 			for(auto i{vec.begin_ptr},e{vec.curr_ptr};i!=e;++i)
 			{
-				new (des.cptr) value_type();
+				new (des.cptr) value_type;
 				++des.cptr;
 			}
 			des.bptr=nullptr;
@@ -220,7 +222,7 @@ public:
 	requires std::constructible_from<value_type,Args...>
 	constexpr reference emplace_back_unchecked(Args&& ...args)
 	{
-		auto p{new (curr_ptr) value_type(::ncc::details::forward<Args>(args)...)};
+		auto p{::new (curr_ptr) value_type(::ncc::details::forward<Args>(args)...)};
 		++curr_ptr;
 		return *p;
 	}

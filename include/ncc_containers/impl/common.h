@@ -7,6 +7,7 @@
 #include<limits>
 #include<concepts>
 #include<cstdint>
+#include<new>
 
 #include"utils.h"
 #include"concepts.h"
