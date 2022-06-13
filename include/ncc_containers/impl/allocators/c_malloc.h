@@ -13,6 +13,7 @@ namespace ncc
 template<typename T>
 class c_malloc_allocator
 {
+public:
 	using value_type = T;
 	static inline constexpr T* allocate(::std::size_t n) noexcept
 	{
@@ -33,7 +34,13 @@ class c_malloc_allocator
 		{
 		if constexpr(alignof(T)>alignof(::std::max_align_t))
 		{
-			auto p{::ncc::details::noexcept_call(::aligned_alloc,alignof(T),to_allocate)};
+			auto p{::ncc::details::noexcept_call(
+#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WINE__)
+				::_aligned_malloc
+#else
+				::aligned_alloc
+#endif
+				,alignof(T),to_allocate)};
 			if(p==nullptr)
 			{
 				::ncc::details::fast_terminate();
@@ -97,14 +104,26 @@ class c_malloc_allocator
 		if consteval
 		{
 			::std::size_t const to_allocate{n*sizeof(T)};
-			return ::operator new(to_allocate);
+			auto ptr{::operator new(to_allocate)};
+			auto cstr{static_cast<char unsigned*>(ptr)};
+			for(auto i{cstr},e{cstr+to_allocate};i!=e;++i)
+			{
+				*i=0;
+			}
+			return static_cast<T*>(ptr);
 		}
 		else
 		{
 		if constexpr(alignof(T)>alignof(::std::max_align_t))
 		{
 			::std::size_t const to_allocate{n*sizeof(T)};
-			auto p{::ncc::details::noexcept_call(::aligned_alloc,alignof(T),to_allocate)};
+			auto p{::ncc::details::noexcept_call(
+#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WINE__)
+				::_aligned_malloc
+#else
+				::aligned_alloc
+#endif
+				,alignof(T),to_allocate)};
 			if(p==nullptr)
 			{
 				::ncc::details::fast_terminate();
