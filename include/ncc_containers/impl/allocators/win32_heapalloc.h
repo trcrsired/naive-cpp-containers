@@ -133,7 +133,6 @@ inline void* win32_heaprealloc_impl(void* addr,::std::size_t n) noexcept
 class win32_heapalloc_allocator
 {
 public:
-	using value_type = T;
 	template<typename T>
 	static inline constexpr T* allocate(::std::size_t n) noexcept
 	{
