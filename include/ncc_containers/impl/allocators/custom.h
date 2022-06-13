@@ -15,11 +15,10 @@ extern void* ncc_custom_reallocate(void*,std::size_t) noexcept;//never return nu
 extern void* ncc_custom_aligned_reallocate(void*,std::size_t,std::size_t) noexcept;//never return nullptr
 
 
-template<typename T>
 class ncc_custom_allocator
 {
 public:
-	using value_type = T;
+	template<typename T>
 	static inline constexpr T* allocate(::std::size_t n) noexcept
 	{
 		if constexpr(sizeof(T)!=1)
@@ -47,6 +46,7 @@ public:
 			}
 		}
 	}
+	template<typename T>
 	static inline constexpr T* allocate_zero(::std::size_t n) noexcept
 	{
 		if constexpr(sizeof(T)!=1)
@@ -80,6 +80,36 @@ public:
 			}
 		}
 	}
+	template<typename T>
+	static inline constexpr void* reallocate(T* ptr,::std::size_t n) noexcept
+	{
+		if constexpr(sizeof(T)!=1)
+		{
+			constexpr std::size_t mx{::std::numeric_limits<std::size_t>::max()/sizeof(T)};
+			if(mx<n)
+			{
+				::ncc::details::fast_terminate();
+			}
+		}
+		::std::size_t const to_allocate{n*sizeof(T)};
+		if consteval
+		{
+			::operator delete(ptr);
+			return static_cast<T*>(::operator new(to_allocate));
+		}
+		else
+		{
+			if constexpr(alignof(T)>alignof(::std::max_align_t))
+			{
+				return reinterpret_cast<T*>(ncc_custom_aligned_reallocate(ptr,alignof(T),to_allocate));
+			}
+			else
+			{
+				return reinterpret_cast<T*>(ncc_custom_reallocate(ptr,to_allocate));
+			}
+		}
+	}
+	template<typename T>
 	static inline constexpr void deallocate(T* ptr,::std::size_t n) noexcept
 	{
 		if consteval
