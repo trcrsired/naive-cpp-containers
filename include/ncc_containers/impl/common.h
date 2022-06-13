@@ -6,6 +6,7 @@
 #include<type_traits>
 #include<limits>
 #include<concepts>
+#include<cstdint>
 
 #include"utils.h"
 #include"concepts.h"
