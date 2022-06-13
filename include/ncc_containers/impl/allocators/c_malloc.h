@@ -79,11 +79,11 @@ public:
 		if consteval
 		{
 			::operator delete(p);
-			return ::operator new(to_allocate);
+			return static_cast<T*>(::operator new(to_allocate));
 		}
 		else
 		{
-			p=realloc(p,to_allocate);
+			p=static_cast<T*>(realloc(p,to_allocate));
 			if(p==nullptr)
 			{
 				::ncc::details::fast_terminate();
