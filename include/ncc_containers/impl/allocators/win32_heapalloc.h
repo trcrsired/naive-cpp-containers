@@ -89,6 +89,7 @@ inline void win32_heapfree_impl(void* addr) noexcept
 template<typename T>
 class win32_heapalloc_allocator
 {
+	using value_type = T;
 	static inline constexpr T* allocate(::std::size_t n) noexcept
 	{
 		if constexpr(sizeof(T)!=1)

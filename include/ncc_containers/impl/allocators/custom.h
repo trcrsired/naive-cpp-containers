@@ -11,6 +11,7 @@ void ncc_custom_aligned_deallocate(void*,std::size_t,std::size_t) noexcept;
 template<typename T>
 class ncc_custom_allocator
 {
+	using value_type = T;
 	static inline constexpr T* allocate(::std::size_t n) noexcept
 	{
 		if constexpr(sizeof(T)!=1)
