@@ -10,11 +10,10 @@
 namespace ncc
 {
 
-template<typename T>
 class c_malloc_allocator
 {
 public:
-	using value_type = T;
+	template<typename T>
 	static inline constexpr T* allocate(::std::size_t n) noexcept
 	{
 		if constexpr(sizeof(T)!=1)
@@ -65,6 +64,7 @@ public:
 		}
 		}
 	}
+	template<typename T>
 	static inline constexpr T* reallocate(T* p,::std::size_t n) noexcept
 	{
 		if constexpr(sizeof(T)!=1)
@@ -91,6 +91,7 @@ public:
 			return p;
 		}
 	}
+	template<typename T>
 	static inline constexpr T* allocate_zero(::std::size_t n) noexcept
 	{
 		if constexpr(sizeof(T)!=1)
@@ -150,7 +151,7 @@ public:
 		}
 		}
 	}
-
+	template<typename T>
 	static inline constexpr void deallocate(T* p,::std::size_t) noexcept
 	{
 		if consteval

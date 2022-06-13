@@ -130,11 +130,11 @@ inline void* win32_heaprealloc_impl(void* addr,::std::size_t n) noexcept
 
 }
 
-template<typename T>
 class win32_heapalloc_allocator
 {
 public:
 	using value_type = T;
+	template<typename T>
 	static inline constexpr T* allocate(::std::size_t n) noexcept
 	{
 		if constexpr(sizeof(T)!=1)
@@ -156,6 +156,7 @@ public:
 			return reinterpret_cast<T*>(p);
 		}
 	}
+	template<typename T>
 	static inline constexpr T* allocate_zero(::std::size_t n) noexcept
 	{
 		{
@@ -185,7 +186,7 @@ public:
 		}
 		}
 	}
-
+	template<typename T>
 	static inline constexpr T* reallocate(T* ptr,::std::size_t n) noexcept
 	{
 		if constexpr(sizeof(T)!=1)
@@ -207,6 +208,7 @@ public:
 			return reinterpret_cast<T*>(p);
 		}
 	}
+	template<typename T>
 	static inline constexpr void deallocate(T* p,::std::size_t) noexcept
 	{
 		if consteval

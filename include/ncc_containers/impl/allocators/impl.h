@@ -16,12 +16,12 @@ template<typename T>
 using native_allocator =
 #if __STDC_HOSTED__==1 && (!defined(_GLIBCXX_HOSTED) || _GLIBCXX_HOSTED==1)
 #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WINE__)
-win32_heapalloc_allocator<T>
+win32_heapalloc_allocator
 #else
-c_malloc_allocator<T>
+c_malloc_allocator
 #endif
 #else
-custom_allocator<T>
+custom_allocator
 #endif
 ;
 
