@@ -87,6 +87,10 @@ namespace details
 {
 inline void* win32_heapalloc_impl(::std::size_t to_allocate) noexcept
 {
+	if(to_allocate==0)
+	{
+		to_allocate=1;
+	}
 	auto p{::ncc::win32::HeapAlloc(
 		::ncc::win32::GetProcessHeap(),
 		0u,to_allocate)};
@@ -99,6 +103,10 @@ inline void* win32_heapalloc_impl(::std::size_t to_allocate) noexcept
 
 inline void* win32_heapalloc_zero_impl(::std::size_t to_allocate) noexcept
 {
+	if(to_allocate==0)
+	{
+		to_allocate=1;
+	}
 	auto p{::ncc::win32::HeapAlloc(
 		::ncc::win32::GetProcessHeap(),
 		0x00000008u,to_allocate)};
@@ -118,6 +126,17 @@ inline void win32_heapfree_impl(void* addr) noexcept
 
 inline void* win32_heaprealloc_impl(void* addr,::std::size_t n) noexcept
 {
+	if(n==0)
+	{
+		n=1;
+	}
+	if(addr==nullptr)
+#if __has_cpp_attribute(unlikely)
+	[[unlikely]]
+#endif
+	{
+		return win32_heapalloc_impl(n);
+	}
 	auto p{::ncc::win32::HeapReAlloc(
 		::ncc::win32::GetProcessHeap(),
 		0u,addr,n)};

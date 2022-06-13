@@ -24,6 +24,10 @@ public:
 				::ncc::details::fast_terminate();
 			}
 		}
+		if(n==0)
+		{
+			n=1;
+		}
 		::std::size_t const to_allocate{n*sizeof(T)};
 		if consteval
 		{
@@ -75,6 +79,10 @@ public:
 				::ncc::details::fast_terminate();
 			}
 		}
+		if(n==0)
+		{
+			n=1;
+		}
 		::std::size_t const to_allocate{n*sizeof(T)};
 		if consteval
 		{
@@ -115,6 +123,10 @@ public:
 		}
 		else
 		{
+			if(n==0)
+			{
+				n=1;
+			}
 		if constexpr(alignof(T)>alignof(::std::max_align_t))
 		{
 			::std::size_t const to_allocate{n*sizeof(T)};
