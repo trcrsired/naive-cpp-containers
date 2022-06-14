@@ -164,6 +164,25 @@ public:
 				return;
 			}
 			begin_ptr=allocator.template allocate<value_type>(vecsize);
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+#if __cpp_if_consteval >= 202106L
+		if consteval
+#else
+		if(__builtin_is_constant_evaluated())
+#endif
+		{
+			run_destroy des(this);
+			auto e{begin_ptr+vecsize};
+			this->end_ptr=e;
+			for(;this->curr_ptr!=e;++this->curr_ptr)
+			{
+				new (this->curr_ptr) value_type;
+			}
+			des.thisvec=nullptr;
+		}
+		else
+#endif
+		{
 #if defined(__has_builtin)
 #if __has_builtin(__builtin_memcpy)
 			__builtin_memcpy(begin_ptr,vec.begin_ptr,n);
@@ -174,6 +193,9 @@ public:
 			std::memcpy(begin_ptr,vec.begin_ptr,n);
 #endif
 			end_ptr=curr_ptr=begin_ptr+vecsize;
+
+		}
+
 		}
 		else
 		{
