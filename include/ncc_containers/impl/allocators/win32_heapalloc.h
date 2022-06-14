@@ -91,6 +91,21 @@ __asm__("HeapReAlloc")
 
 namespace details
 {
+inline void* win32_heapalloc_common_impl(::std::size_t to_allocate,::std::uint_least32_t flag) noexcept
+{
+	if(to_allocate==0)
+	{
+		to_allocate=1;
+	}
+	auto p{::ncc::win32::HeapAlloc(
+		::ncc::win32::GetProcessHeap(),
+		flag,to_allocate)};
+	if(p==nullptr)
+	{
+		::ncc::details::fast_terminate();
+	}
+	return p;
+}
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
 [[__gnu__::__returns_nonnull__]]
 #endif
@@ -99,18 +114,7 @@ namespace details
 #endif
 inline void* win32_heapalloc_impl(::std::size_t to_allocate) noexcept
 {
-	if(to_allocate==0)
-	{
-		to_allocate=1;
-	}
-	auto p{::ncc::win32::HeapAlloc(
-		::ncc::win32::GetProcessHeap(),
-		0u,to_allocate)};
-	if(p==nullptr)
-	{
-		::ncc::details::fast_terminate();
-	}
-	return p;
+	return win32_heapalloc_common_impl(to_allocate,0u);
 }
 
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
@@ -118,18 +122,7 @@ inline void* win32_heapalloc_impl(::std::size_t to_allocate) noexcept
 #endif
 inline void* win32_heapalloc_zero_impl(::std::size_t to_allocate) noexcept
 {
-	if(to_allocate==0)
-	{
-		to_allocate=1;
-	}
-	auto p{::ncc::win32::HeapAlloc(
-		::ncc::win32::GetProcessHeap(),
-		0x00000008u,to_allocate)};
-	if(p==nullptr)
-	{
-		::ncc::details::fast_terminate();
-	}
-	return p;
+	return win32_heapalloc_common_impl(to_allocate,0x00000008u);
 }
 
 inline void win32_heapfree_impl(void* addr) noexcept
