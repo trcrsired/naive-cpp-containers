@@ -1,5 +1,11 @@
 #pragma once
-
+#if defined(_MSC_VER) && !defined(__clang__)
+#pragma warning(push)
+#pragma warning( disable : 4514 )
+#pragma warning( disable : 4668 )
+#pragma warning( disable : 4710 )
+#pragma warning( disable : 5045 )
+#endif
 #include"impl/common.h"
 
 namespace ncc
@@ -417,3 +423,6 @@ using vector = ::ncc::freestanding::vector<T,alloc>;
 #endif
 
 }
+#if defined(_MSC_VER) && !defined(__clang__)
+#pragma warning(pop)
+#endif
