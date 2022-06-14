@@ -10,6 +10,9 @@ __declspec(dllimport)
 #elif __has_cpp_attribute(__gnu__::__dllimport__)
 [[__gnu__::__dllimport__]]
 #endif
+#if __has_cpp_attribute(__gnu__::__malloc__)
+[[__gnu__::__malloc__]]
+#endif
 extern void* __stdcall HeapAlloc(void*,::std::uint_least32_t,::std::size_t) noexcept
 #if defined(__clang__) || defined(__GNUC__)
 #if SIZE_MAX<=UINT_LEAST32_MAX &&(defined(__x86__) || defined(_M_IX86) || defined(__i386__))
@@ -48,6 +51,9 @@ __declspec(dllimport)
 #elif __has_cpp_attribute(__gnu__::__dllimport__)
 [[__gnu__::__dllimport__]]
 #endif
+#if __has_cpp_attribute(__gnu__::__const__)
+[[__gnu__::__const__]]
+#endif
 extern void* __stdcall GetProcessHeap() noexcept
 #if defined(__clang__) || defined(__GNUC__)
 #if SIZE_MAX<=UINT_LEAST32_MAX &&(defined(__x86__) || defined(_M_IX86) || defined(__i386__))
@@ -85,6 +91,12 @@ __asm__("HeapReAlloc")
 
 namespace details
 {
+#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
+[[__gnu__::__returns_nonnull__]]
+#endif
+#if __has_cpp_attribute(__gnu__::__malloc__)
+[[__gnu__::__malloc__]]
+#endif
 inline void* win32_heapalloc_impl(::std::size_t to_allocate) noexcept
 {
 	if(to_allocate==0)
@@ -101,6 +113,9 @@ inline void* win32_heapalloc_impl(::std::size_t to_allocate) noexcept
 	return p;
 }
 
+#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
+[[__gnu__::__returns_nonnull__]]
+#endif
 inline void* win32_heapalloc_zero_impl(::std::size_t to_allocate) noexcept
 {
 	if(to_allocate==0)
@@ -119,11 +134,16 @@ inline void* win32_heapalloc_zero_impl(::std::size_t to_allocate) noexcept
 
 inline void win32_heapfree_impl(void* addr) noexcept
 {
+	if(addr==nullptr)
+		return;
 	::ncc::win32::HeapFree(
 		::ncc::win32::GetProcessHeap(),
 		0u,addr);
 }
 
+#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
+[[__gnu__::__returns_nonnull__]]
+#endif
 inline void* win32_heaprealloc_impl(void* addr,::std::size_t n) noexcept
 {
 	if(n==0)
@@ -153,6 +173,9 @@ class win32_heapalloc_allocator
 {
 public:
 	template<typename T>
+#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
+[[__gnu__::__returns_nonnull__]]
+#endif
 	static inline constexpr T* allocate(::std::size_t n) noexcept
 	{
 		if constexpr(sizeof(T)!=1)
@@ -175,6 +198,9 @@ public:
 		}
 	}
 	template<typename T>
+#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
+[[__gnu__::__returns_nonnull__]]
+#endif
 	static inline constexpr T* allocate_zero(::std::size_t n) noexcept
 	{
 		{
@@ -205,6 +231,9 @@ public:
 		}
 	}
 	template<typename T>
+#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
+[[__gnu__::__returns_nonnull__]]
+#endif
 	static inline constexpr T* reallocate(T* ptr,::std::size_t n) noexcept
 	{
 		if constexpr(sizeof(T)!=1)
