@@ -6,7 +6,7 @@ int main()
 {
 	fast_io::timer tm(u8"std::vector::emplace_back");
 	std::vector<std::size_t> vec;
-	constexpr std::size_t n{100000000zu};
+	constexpr std::size_t n{100000000};
 	vec.reserve(n);
 	for(std::size_t i{};i!=n;++i)
 	{

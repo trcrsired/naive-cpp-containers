@@ -4,6 +4,9 @@
 
 #if (defined(_WIN32) || defined(__CYGWIN__)) && !defined(__WINE__)
 #include"win32_heapalloc.h"
+#if defined(_MSC_VER) && !defined(__clang__)
+#include"msvc/impl.h"
+#endif
 #endif
 #include"c_malloc.h"
 #endif
