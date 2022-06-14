@@ -303,6 +303,89 @@ public:
 		}
 		grow_to_size_impl(n);
 	}
+	constexpr reference operator[](size_type pos) noexcept
+	{
+#if defined(__GLIBCXX__) && !defined(_LIBCPP_VERSION) && (defined(_GLIBCXX_ASSERTIONS) || defined(_GLIBCXX_DEBUG))
+		if(static_cast<std::size_t>(end_ptr-begin_ptr)<=pos)
+#if __has_cpp_attribute(unlikely)
+[[unlikely]]
+#endif
+		{
+			__builtin_trap();
+		}
+#endif
+		return begin_ptr[pos];
+	}
+	constexpr const_reference operator[](size_type pos) const noexcept
+	{
+#if defined(__GLIBCXX__) && !defined(_LIBCPP_VERSION) && (defined(_GLIBCXX_ASSERTIONS) || defined(_GLIBCXX_DEBUG))
+		if(static_cast<std::size_t>(end_ptr-begin_ptr)<=pos)
+#if __has_cpp_attribute(unlikely)
+[[unlikely]]
+#endif
+		{
+			__builtin_trap();
+		}
+#endif
+		return begin_ptr[pos];
+	}
+
+	constexpr const_reference front() const noexcept
+	{
+#if defined(__GLIBCXX__) && !defined(_LIBCPP_VERSION) && (defined(_GLIBCXX_ASSERTIONS) || defined(_GLIBCXX_DEBUG))
+		if(begin_ptr==curr_ptr)
+#if __has_cpp_attribute(unlikely)
+[[unlikely]]
+#endif
+		{
+			__builtin_trap();
+		}
+#endif
+		return *begin_ptr;
+	}
+
+	constexpr reference front() noexcept
+	{
+#if defined(__GLIBCXX__) && !defined(_LIBCPP_VERSION) && (defined(_GLIBCXX_ASSERTIONS) || defined(_GLIBCXX_DEBUG))
+		if(begin_ptr==curr_ptr)
+#if __has_cpp_attribute(unlikely)
+[[unlikely]]
+#endif
+		{
+			__builtin_trap();
+		}
+#endif
+		return *begin_ptr;
+	}
+
+	constexpr const_reference back() const noexcept
+	{
+#if defined(__GLIBCXX__) && !defined(_LIBCPP_VERSION) && (defined(_GLIBCXX_ASSERTIONS) || defined(_GLIBCXX_DEBUG))
+		if(begin_ptr==curr_ptr)
+#if __has_cpp_attribute(unlikely)
+[[unlikely]]
+#endif
+		{
+			__builtin_trap();
+		}
+#endif
+		return curr_ptr[-1];
+	}
+
+	constexpr reference back() noexcept
+	{
+#if defined(__GLIBCXX__) && !defined(_LIBCPP_VERSION) && (defined(_GLIBCXX_ASSERTIONS) || defined(_GLIBCXX_DEBUG))
+		if(begin_ptr==curr_ptr)
+#if __has_cpp_attribute(unlikely)
+[[unlikely]]
+#endif
+		{
+			__builtin_trap();
+		}
+#endif
+		return curr_ptr[-1];
+	}
+
 	template<typename... Args>
 	requires std::constructible_from<value_type,Args...>
 #if __has_cpp_attribute(__gnu__::__always_inline__)
