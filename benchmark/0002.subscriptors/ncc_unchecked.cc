@@ -1,3 +1,4 @@
+#include<fast_io.h>
 #include<fast_io_driver/timer.h>
 #include<ncc_containers/vector.h>
 
