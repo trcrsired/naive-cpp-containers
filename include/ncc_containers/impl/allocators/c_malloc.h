@@ -32,11 +32,17 @@ public:
 			n=1;
 		}
 		::std::size_t const to_allocate{n*sizeof(T)};
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+#if __cpp_if_consteval >= 202106L
 		if consteval
+#else
+		if(__builtin_is_constant_evaluated())
+#endif
 		{
 			return ::operator new(to_allocate);
 		}
 		else
+#endif
 		{
 		if constexpr(alignof(T)>alignof(::std::max_align_t))
 		{
@@ -90,12 +96,18 @@ public:
 			n=1;
 		}
 		::std::size_t const to_allocate{n*sizeof(T)};
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+#if __cpp_if_consteval >= 202106L
 		if consteval
+#else
+		if(__builtin_is_constant_evaluated())
+#endif
 		{
 			::operator delete(p);
 			return static_cast<T*>(::operator new(to_allocate));
 		}
 		else
+#endif
 		{
 			p=static_cast<T*>(realloc(p,to_allocate));
 			if(p==nullptr)
@@ -119,7 +131,12 @@ public:
 				::ncc::details::fast_terminate();
 			}
 		}
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+#if __cpp_if_consteval >= 202106L
 		if consteval
+#else
+		if(__builtin_is_constant_evaluated())
+#endif
 		{
 			::std::size_t const to_allocate{n*sizeof(T)};
 			auto ptr{::operator new(to_allocate)};
@@ -131,55 +148,62 @@ public:
 			return static_cast<T*>(ptr);
 		}
 		else
+#endif
 		{
 			if(n==0)
 			{
 				n=1;
 			}
-		if constexpr(alignof(T)>alignof(::std::max_align_t))
-		{
-			::std::size_t const to_allocate{n*sizeof(T)};
-			auto p{::ncc::details::noexcept_call(
-#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WINE__)
-				::_aligned_malloc
-#else
-				::aligned_alloc
-#endif
-				,alignof(T),to_allocate)};
-			if(p==nullptr)
+			if constexpr(alignof(T)>alignof(::std::max_align_t))
 			{
-				::ncc::details::fast_terminate();
-			}
+				::std::size_t const to_allocate{n*sizeof(T)};
+				auto p{::ncc::details::noexcept_call(
+#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WINE__)
+					::_aligned_malloc
+#else
+					::aligned_alloc
+#endif
+					,alignof(T),to_allocate)};
+				if(p==nullptr)
+				{
+					::ncc::details::fast_terminate();
+				}
 #if defined(__has_builtin)
 #if __has_builtin(__builtin_memset)
-			__builtin_memset(p,0,to_allocate);
+				__builtin_memset(p,0,to_allocate);
 #else
-			std::memset(p,0,to_allocate);
+				std::memset(p,0,to_allocate);
 #endif
 #else
-			std::memset(p,0,to_allocate);
+				std::memset(p,0,to_allocate);
 #endif
-			return reinterpret_cast<T*>(p);
-		}
-		else
-		{
-			auto p{calloc(n,sizeof(T))};
-			if(p==nullptr)
-			{
-				::ncc::details::fast_terminate();
+				return reinterpret_cast<T*>(p);
 			}
-			return static_cast<T*>(p);
-		}
+			else
+			{
+				auto p{calloc(n,sizeof(T))};
+				if(p==nullptr)
+				{
+					::ncc::details::fast_terminate();
+				}
+				return static_cast<T*>(p);
+			}
 		}
 	}
 	template<typename T>
 	static inline constexpr void deallocate(T* p,::std::size_t) noexcept
 	{
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+#if __cpp_if_consteval >= 202106L
 		if consteval
+#else
+		if(__builtin_is_constant_evaluated())
+#endif
 		{
 			::operator delete(p);
 		}
 		else
+#endif
 		{
 			free(p);
 		}

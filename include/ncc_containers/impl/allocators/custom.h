@@ -30,11 +30,17 @@ public:
 			}
 		}
 		::std::size_t const to_allocate{n*sizeof(T)};
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+#if __cpp_if_consteval >= 202106L
 		if consteval
+#else
+		if(__builtin_is_constant_evaluated())
+#endif
 		{
 			return static_cast<T*>(::operator new(to_allocate));
 		}
 		else
+#endif
 		{
 			if constexpr(alignof(T)>alignof(::std::max_align_t))
 			{
@@ -58,7 +64,12 @@ public:
 			}
 		}
 		::std::size_t const to_allocate{n*sizeof(T)};
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+#if __cpp_if_consteval >= 202106L
 		if consteval
+#else
+		if(__builtin_is_constant_evaluated())
+#endif
 		{
 			auto ptr{::operator new(to_allocate)};
 			auto cstr{static_cast<char unsigned*>(ptr)};
@@ -69,6 +80,7 @@ public:
 			return static_cast<T*>(ptr);
 		}
 		else
+#endif
 		{
 			if constexpr(alignof(T)>alignof(::std::max_align_t))
 			{
@@ -92,12 +104,18 @@ public:
 			}
 		}
 		::std::size_t const to_allocate{n*sizeof(T)};
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+#if __cpp_if_consteval >= 202106L
 		if consteval
+#else
+		if(__builtin_is_constant_evaluated())
+#endif
 		{
 			::operator delete(ptr);
 			return static_cast<T*>(::operator new(to_allocate));
 		}
 		else
+#endif
 		{
 			if constexpr(alignof(T)>alignof(::std::max_align_t))
 			{
@@ -112,11 +130,17 @@ public:
 	template<typename T>
 	static inline constexpr void deallocate(T* ptr,::std::size_t n) noexcept
 	{
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+#if __cpp_if_consteval >= 202106L
 		if consteval
+#else
+		if(__builtin_is_constant_evaluated())
+#endif
 		{
 			::operator delete(ptr);
 		}
 		else
+#endif
 		{
 			std::size_t const to_allocate{n*sizeof(T)};
 			if constexpr(alignof(T)>alignof(::std::max_align_t))

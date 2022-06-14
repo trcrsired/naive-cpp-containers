@@ -180,11 +180,17 @@ public:
 			}
 		}
 		::std::size_t const to_allocate{n*sizeof(T)};
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+#if __cpp_if_consteval >= 202106L
 		if consteval
+#else
+		if(__builtin_is_constant_evaluated())
+#endif
 		{
 			return static_cast<T*>(::operator new(to_allocate));
 		}
 		else
+#endif
 		{
 			auto p{::ncc::details::win32_heapalloc_impl(to_allocate)};
 			return reinterpret_cast<T*>(p);
@@ -194,7 +200,11 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
 [[__gnu__::__returns_nonnull__]]
 #endif
-	static inline constexpr T* allocate_zero(::std::size_t n) noexcept
+	static inline
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+	constexpr
+#endif
+	T* allocate_zero(::std::size_t n) noexcept
 	{
 		{
 			constexpr std::size_t mx{SIZE_MAX/sizeof(T)};
@@ -204,7 +214,12 @@ public:
 			}
 		}
 		::std::size_t const to_allocate{n*sizeof(T)};
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+#if __cpp_if_consteval >= 202106L
 		if consteval
+#else
+		if(__builtin_is_constant_evaluated())
+#endif
 		{
 			::std::size_t const to_allocate{n*sizeof(T)};
 			auto ptr{::operator new(to_allocate)};
@@ -216,6 +231,7 @@ public:
 			return static_cast<T*>(ptr);
 		}
 		else
+#endif
 		{
 		{
 			auto p{::ncc::details::win32_heapalloc_zero_impl(to_allocate)};
@@ -227,7 +243,11 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
 [[__gnu__::__returns_nonnull__]]
 #endif
-	static inline constexpr T* reallocate(T* ptr,::std::size_t n) noexcept
+	static inline 
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+	constexpr
+#endif
+	T* reallocate(T* ptr,::std::size_t n) noexcept
 	{
 		if constexpr(sizeof(T)!=1)
 		{
@@ -238,24 +258,40 @@ public:
 			}
 		}
 		::std::size_t const to_allocate{n*sizeof(T)};
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+#if __cpp_if_consteval >= 202106L
 		if consteval
+#else
+		if(__builtin_is_constant_evaluated())
+#endif
 		{
 			return static_cast<T*>(::operator new(to_allocate));
 		}
 		else
+#endif
 		{
 			auto p{::ncc::details::win32_heaprealloc_impl(ptr,to_allocate)};
 			return reinterpret_cast<T*>(p);
 		}
 	}
 	template<typename T>
-	static inline constexpr void deallocate(T* p,::std::size_t) noexcept
+	static inline
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+	constexpr
+#endif
+	void deallocate(T* p,::std::size_t) noexcept
 	{
+#if (__cpp_if_consteval >= 202106L || __cpp_lib_is_constant_evaluated >= 201811L) && __cpp_constexpr_dynamic_alloc >= 201907L
+#if __cpp_if_consteval >= 202106L
 		if consteval
+#else
+		if(__builtin_is_constant_evaluated())
+#endif
 		{
 			::operator delete(p);
 		}
 		else
+#endif
 		{
 			::ncc::details::win32_heapfree_impl(p);
 		}
