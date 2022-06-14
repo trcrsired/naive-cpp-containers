@@ -75,6 +75,11 @@ public:
 	{
 		return begin_ptr == curr_ptr;
 	}
+
+	constexpr bool empty() const noexcept
+	{
+		return begin_ptr == curr_ptr;
+	}
 	constexpr void clear() noexcept
 	{
 		if constexpr(!::std::is_trivially_copyable_v<value_type>)
@@ -98,6 +103,11 @@ public:
 	explicit constexpr vector() noexcept = default;
 
 private:
+	void destroy()
+	{
+		clear();
+		allocator.template deallocate<value_type>(begin_ptr,static_cast<std::size_t>(end_ptr-begin_ptr));
+	}
 	struct run_destroy
 	{
 		vector* thisvec{};
@@ -109,18 +119,10 @@ private:
 		{
 			if(thisvec)
 			{
-				auto begin_ptr{thisvec->begin_ptr};
-				auto curr_ptr{thisvec->curr_ptr};
-				for(;curr_ptr!=begin_ptr;(--curr_ptr)->~value_type());
-				thisvec->allocator.template deallocate<value_type>(begin_ptr,static_cast<std::size_t>(thisvec->end_ptr-thisvec->begin_ptr));
+				thisvec->destroy();
 			}
 		}
 	};
-	void destroy()
-	{
-		clear();
-		allocator.template deallocate<value_type>(begin_ptr,static_cast<std::size_t>(end_ptr-begin_ptr));
-	}
 public:
 
 	explicit constexpr vector(size_type n) noexcept(::std::is_scalar_v<value_type>)
@@ -290,6 +292,28 @@ public:
 		}
 		grow_to_size_impl(n);
 	}
+
+	constexpr void shrink_to_fit() noexcept
+	{
+		if(curr_ptr==end_ptr)
+		{
+			return;
+		}
+		grow_to_size_impl(static_cast<std::size_t>(curr_ptr-begin_ptr));
+	}
+	constexpr void pop_back() noexcept
+	{
+#if defined(__GLIBCXX__) && !defined(_LIBCPP_VERSION) && (defined(_GLIBCXX_ASSERTIONS) || defined(_GLIBCXX_DEBUG))
+		if(begin_ptr==curr_ptr)
+#if __has_cpp_attribute(unlikely)
+[[unlikely]]
+#endif
+		{
+			__builtin_trap();
+		}
+#endif
+		(--curr_ptr)->~value_type();
+	}
 	constexpr reference operator[](size_type pos) noexcept
 	{
 #if defined(__GLIBCXX__) && !defined(_LIBCPP_VERSION) && (defined(_GLIBCXX_ASSERTIONS) || defined(_GLIBCXX_DEBUG))
@@ -358,7 +382,6 @@ public:
 #endif
 		return curr_ptr[-1];
 	}
-
 	constexpr reference back() noexcept
 	{
 #if defined(__GLIBCXX__) && !defined(_LIBCPP_VERSION) && (defined(_GLIBCXX_ASSERTIONS) || defined(_GLIBCXX_DEBUG))
