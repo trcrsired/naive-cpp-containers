@@ -163,7 +163,15 @@ public:
 				return;
 			}
 			begin_ptr=allocator.template allocate<value_type>(vecsize);
+#if defined(__has_builtin)
+#if __has_builtin(__builtin_memcpy)
 			__builtin_memcpy(begin_ptr,vec.begin_ptr,n);
+#else
+			std::memcpy(begin_ptr,vec.begin_ptr,n);
+#endif
+#else
+			std::memcpy(begin_ptr,vec.begin_ptr,n);
+#endif
 			end_ptr=curr_ptr=begin_ptr+vecsize;
 		}
 		else
@@ -212,6 +220,7 @@ public:
 		this->allocator=vec.allocator;
 		vec.end_ptr=vec.curr_ptr=vec.begin_ptr=nullptr;
 		vec.allocator={};
+		return *this;
 	}
 	constexpr ~vector()
 	{
