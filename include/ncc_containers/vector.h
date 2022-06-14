@@ -100,22 +100,19 @@ public:
 private:
 	struct run_destroy
 	{
-		value_type* bptr{};
-		value_type* cptr{};
-		std::size_t n{};
-		allocator_type allocator{};
+		vector* thisvec{};
 		constexpr run_destroy() noexcept=default;
+		explicit constexpr run_destroy(vector* p) noexcept:thisvec(p){}
 		run_destroy(run_destroy const&)=delete;
 		run_destroy& operator=(run_destroy const&)=delete;
 		constexpr ~run_destroy()
 		{
-			if(bptr)
+			if(thisvec)
 			{
-				for(;cptr!=bptr;)
-				{
-					(--cptr)->~value_type();
-				}
-				allocator.template deallocate<value_type>(bptr,n);
+				auto begin_ptr{thisvec->begin_ptr};
+				auto curr_ptr{thisvec->curr_ptr};
+				for(;curr_ptr!=begin_ptr;(--curr_ptr)->~value_type());
+				thisvec->allocator.template deallocate<value_type>(begin_ptr,static_cast<std::size_t>(thisvec->end_ptr-thisvec->begin_ptr));
 			}
 		}
 	};
@@ -135,18 +132,14 @@ public:
 		}
 		else
 		{
-			begin_ptr=allocator.template allocate<value_type>(n);
-			run_destroy des;
-			des.bptr=begin_ptr;
-			des.cptr=des.bptr;
-			des.n=n;
-			des.allocator=allocator;
-			for(auto e{begin_ptr+n};des.cptr!=e;++des.cptr)
+			auto e{this->end_ptr=(this->curr_ptr=this->begin_ptr=
+				allocator.template allocate<value_type>(n))+n};
+			run_destroy des(this);
+			for(;this->curr_ptr!=e;++this->curr_ptr)
 			{
-				new (des.cptr) value_type;
+				new (this->curr_ptr) value_type;
 			}
-			des.bptr=nullptr;
-			end_ptr=curr_ptr=begin_ptr+n;
+			des.thisvec=nullptr;
 		}
 	}
 
@@ -182,19 +175,15 @@ public:
 			{
 				return;
 			}
-			begin_ptr=allocator.template allocate<value_type>(vecsize);
-			run_destroy des;
-			des.bptr=begin_ptr;
-			des.cptr=begin_ptr;
-			des.n=vecsize;
-			des.allocator=allocator;
-			for(auto i{vec.begin_ptr},e{vec.curr_ptr};i!=e;++i)
+			this->begin_ptr=allocator.template allocate<value_type>(vecsize);
+			run_destroy des(this);
+			auto e{begin_ptr+vecsize};
+			this->end_ptr=e;
+			for(;this->curr_ptr!=e;++this->curr_ptr)
 			{
-				new (des.cptr) value_type;
-				++des.cptr;
+				new (this->curr_ptr) value_type;
 			}
-			des.bptr=nullptr;
-			end_ptr=curr_ptr=begin_ptr+vecsize;
+			des.thisvec=nullptr;
 		}
 	}
 	constexpr vector(vector const& vec) = delete;
