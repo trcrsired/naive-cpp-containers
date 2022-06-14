@@ -226,10 +226,7 @@ public:
 	}
 
 private:
-#if __has_cpp_attribute(__gnu__::__cold__)
-	[[__gnu__::__cold__]]
-#endif
-	inline void grow_to_size_impl(size_type newcap) noexcept
+	inline constexpr void grow_to_size_impl(size_type newcap) noexcept
 	{
 		std::size_t const cap{static_cast<size_type>(end_ptr-begin_ptr)};
 		std::size_t const old_size{static_cast<std::size_t>(curr_ptr-begin_ptr)};
@@ -255,10 +252,7 @@ private:
 			end_ptr=new_begin_ptr+newcap;
 		}
 	}
-#if __has_cpp_attribute(__gnu__::__cold__)
-	[[__gnu__::__cold__]]
-#endif
-	inline void grow_twice_impl() noexcept
+	inline constexpr void grow_twice_impl() noexcept
 	{
 		std::size_t const cap{static_cast<size_type>(end_ptr-begin_ptr)};
 		constexpr std::size_t mx_value{::std::numeric_limits<std::size_t>::max()/sizeof(value_type)};
@@ -395,7 +389,6 @@ public:
 #endif
 		return curr_ptr[-1];
 	}
-
 	template<typename... Args>
 	requires std::constructible_from<value_type,Args...>
 #if __has_cpp_attribute(__gnu__::__always_inline__)
