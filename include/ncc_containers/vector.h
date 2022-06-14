@@ -189,7 +189,9 @@ public:
 	constexpr vector(vector const& vec) = delete;
 	constexpr vector& operator=(vector const& vec) requires(::std::copyable<value_type>)
 	{
-		
+		vector newvec(vec);
+		this->operator=(::ncc::details::move(newvec));
+		return *this;
 	}
 	constexpr vector& operator=(vector const& vec) = delete;
 	constexpr vector(vector&& vec) noexcept:begin_ptr(vec.begin_ptr),curr_ptr(vec.curr_ptr),
