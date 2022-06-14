@@ -187,18 +187,15 @@ public:
 		}
 	}
 	constexpr vector(vector const& vec) = delete;
-#if 0
 	constexpr vector& operator=(vector const& vec) requires(::std::copyable<value_type>)
 	{
-
+		
 	}
-#endif
 	constexpr vector& operator=(vector const& vec) = delete;
 	constexpr vector(vector&& vec) noexcept:begin_ptr(vec.begin_ptr),curr_ptr(vec.curr_ptr),
-		end_ptr(vec.end_ptr),allocator(vec.allocator)
+		end_ptr(vec.end_ptr),allocator(::ncc::details::move(vec.allocator))
 	{
 		vec.end_ptr=vec.curr_ptr=vec.begin_ptr=nullptr;
-		vec.allocator={};
 	}
 	constexpr vector& operator=(vector&& vec) noexcept
 	{
@@ -206,9 +203,8 @@ public:
 		this->begin_ptr=vec.begin_ptr;
 		this->curr_ptr=vec.curr_ptr;
 		this->end_ptr=vec.end_ptr;
-		this->allocator=vec.allocator;
+		this->allocator=::ncc::details::move(vec.allocator);
 		vec.end_ptr=vec.curr_ptr=vec.begin_ptr=nullptr;
-		vec.allocator={};
 		return *this;
 	}
 	constexpr ~vector()
