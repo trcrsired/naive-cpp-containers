@@ -288,7 +288,7 @@ private:
 public:
 	constexpr void reserve(size_type n) noexcept
 	{
-		if(static_cast<std::size_t>(end_ptr-begin_ptr)<=n)
+		if(n<=static_cast<std::size_t>(end_ptr-begin_ptr))
 		{
 			return;
 		}
