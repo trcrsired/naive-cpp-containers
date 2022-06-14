@@ -14,12 +14,13 @@ int main()
 			vec.emplace_back(i);
 		}
 	}
+	std::size_t total_sum{};
 	{
 		fast_io::timer tm(u8"[]");
-		std::size_t total_sum{};
 		for(std::size_t i{};i!=vec.size();++i)
 		{
 			total_sum+=vec[i];
 		}
 	}
+	println(total_sum);
 }
