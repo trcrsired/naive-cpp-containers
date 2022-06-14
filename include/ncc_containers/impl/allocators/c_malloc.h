@@ -168,7 +168,7 @@ public:
 			{
 				::ncc::details::fast_terminate();
 			}
-			return p;
+			return static_cast<T*>(p);
 		}
 		}
 	}
